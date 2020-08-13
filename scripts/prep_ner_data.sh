@@ -12,6 +12,8 @@ lang=`echo $corpus | sed -e 's#-.*$##g'`
 lcode=`python scripts/lang2code.py $lang`
 corpus_name=`echo $corpus | sed -e 's#^.*-##g' | tr '[:upper:]' '[:lower:]'`
 short=${lcode}_${corpus_name}
+lang=ja_gsd
+short=ja_gsd
 
 train_file=$NERBASE/${corpus}/train.bio
 dev_file=$NERBASE/${corpus}/dev.bio
@@ -33,6 +35,9 @@ else
     touch $dev_json_file
 fi
 if [ -e $test_file ]; then
+    echo "make test!!"
+    echo $test_file
+    echo $test_json_file
     python stanza/utils/prepare_ner_data.py $test_file $test_json_file
 else
     touch $test_json_file

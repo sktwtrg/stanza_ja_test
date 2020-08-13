@@ -15,19 +15,22 @@ lcode=`python scripts/lang2code.py $lang`
 corpus_name=`echo $corpus | sed -e 's#^.*-##g' | tr '[:upper:]' '[:lower:]'`
 short=${lcode}_${corpus_name}
 
+lang=ja_gsd
+short=ja_gsd
 train_file=${NER_DATA_DIR}/${short}.train.json
 dev_file=${NER_DATA_DIR}/${short}.dev.json
 test_file=${NER_DATA_DIR}/${short}.test.json
+echo $test_file
 
 if [ ! -e $train_file ]; then
     bash scripts/prep_ner_data.sh $corpus
 fi
 
 echo "Running ner with $args..."
-python -m stanza.models.ner_tagger --wordvec_dir $WORDVEC_DIR --train_file $train_file --eval_file $dev_file \
-    --lang $lang --shorthand $short --mode train $args
-python -m stanza.models.ner_tagger --wordvec_dir $WORDVEC_DIR --eval_file $dev_file \
-    --lang $lang --shorthand $short --mode predict $args
+#python -m stanza.models.ner_tagger --wordvec_dir $WORDVEC_DIR --train_file $train_file --eval_file $dev_file \
+#    --lang $lang --shorthand $short --mode train $args
+#python -m stanza.models.ner_tagger --wordvec_dir $WORDVEC_DIR --eval_file $dev_file \
+#    --lang $lang --shorthand $short --mode predict $args
 python -m stanza.models.ner_tagger --wordvec_dir $WORDVEC_DIR --eval_file $test_file \
-    --lang $lang --shorthand $short --mode predict $args
+    --lang $lang --shorthand $short --mode predict $args --save_dir $NER_DATA_DIR
 

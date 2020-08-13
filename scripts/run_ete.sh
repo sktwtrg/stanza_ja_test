@@ -38,8 +38,9 @@ ete_file=${ETE_DATA_DIR}/${short}.${set}.pred.ete.conllu
 model_short=$short
 model_lang=$lang
 
-if [ ! -e saved_models/tokenize/${short}_tokenizer.pt ]; then
+if [ ! -e ${DATA_ROOT}/tokenize/${short}_tokenizer.pt ]; then
     model_short=`python stanza/utils/select_backoff.py $treebank`
+    model_short=ja_gsd
     model_lang=$model_short
     echo 'using backoff model'
     echo $treebank' --> '$model_short
@@ -61,7 +62,7 @@ echo 'prepare tokenize data'
 echo $prep_tokenize_cmd
 eval $prep_tokenize_cmd
 
-run_tokenize_cmd="python -m stanza.models.tokenizer --mode predict ${eval_file} --lang ${model_lang} --conll_file ${TOKENIZE_DATA_DIR}/${short}.${set}.pred.ete.conllu --shorthand ${model_short}"
+run_tokenize_cmd="python -m stanza.models.tokenizer --mode predict ${eval_file} --lang ${model_lang} --conll_file ${TOKENIZE_DATA_DIR}/${short}.${set}.pred.ete.conllu --shorthand ${model_short} --save_dir ${TOKENIZE_DATA_DIR}"
 
 echo 'run tokenizer'
 echo $run_tokenize_cmd
@@ -75,10 +76,10 @@ echo $cp_ete_file_cmd
 eval $cp_ete_file_cmd
 
 # run the mwt expander
-if [ -e saved_models/mwt/${short}_mwt_expander.pt ]; then
+if [ -e ${DATA_ROOT}/mwt/${short}_mwt_expander.pt ]; then
     echo '---'
     echo 'running mwt expander...'
-    run_mwt_cmd="python -m stanza.models.mwt_expander --mode predict --eval_file ${ete_file} --shorthand ${model_short} --output_file ${MWT_DATA_DIR}/${short}.${set}.pred.ete.conllu"
+    run_mwt_cmd="python -m stanza.models.mwt_expander --mode predict --eval_file ${ete_file} --shorthand ${model_short} --output_file ${MWT_DATA_DIR}/${short}.${set}.pred.ete.conllu "
     echo 'run mwt expander'
     echo $run_mwt_cmd
     eval $run_mwt_cmd
@@ -91,7 +92,7 @@ fi
 # run the part-of-speech tagger
 echo '---'
 echo 'running part-of-speech tagger...'
-part_of_speech_cmd="python -m stanza.models.tagger --wordvec_dir ${WORDVEC_DIR} --eval_file ${ete_file} --output_file ${POS_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --shorthand ${model_short} --mode predict"
+part_of_speech_cmd="python -m stanza.models.tagger --wordvec_dir ${WORDVEC_DIR} --eval_file ${ete_file} --output_file ${POS_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --shorthand ${model_short} --mode predict --save_dir ${POS_DATA_DIR}"
 echo 'run part-of-speech'
 echo $part_of_speech_cmd
 eval $part_of_speech_cmd
@@ -106,7 +107,7 @@ echo 'running lemmatizer...'
 if [[ "$lang" == "vi" || "$lang" == "fro" ]]; then
     lemma_cmd="python -m stanza.models.identity_lemmatizer --data_dir ${LEMMA_DATA_DIR} --eval_file ${ete_file} --output_file ${LEMMA_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --mode predict"
 else
-    lemma_cmd="python -m stanza.models.lemmatizer --data_dir ${LEMMA_DATA_DIR} --eval_file ${ete_file} --output_file ${LEMMA_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --mode predict"
+    lemma_cmd="python -m stanza.models.lemmatizer --data_dir ${LEMMA_DATA_DIR} --eval_file ${ete_file} --output_file ${LEMMA_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --mode predict --save_dir ${LEMMA_DATA_DIR}"
 fi
 echo 'run lemmatizer'
 echo $lemma_cmd
@@ -126,7 +127,7 @@ fi
 # run the dependency parser
 echo '---'
 echo 'running dependency parser...'
-depparse_cmd="python -m stanza.models.parser --wordvec_dir ${WORDVEC_DIR} --eval_file ${ete_file} --output_file ${DEPPARSE_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --shorthand ${model_short} --mode predict --batch_size ${batch_size}"
+depparse_cmd="python -m stanza.models.parser --wordvec_dir ${WORDVEC_DIR} --eval_file ${ete_file} --output_file ${DEPPARSE_DATA_DIR}/${short}.${set}.pred.ete.conllu --lang ${model_short} --shorthand ${model_short} --mode predict --batch_size ${batch_size} --save_dir ${DEPPARSE_DATA_DIR}"
 echo 'run dependency parser'
 echo $depparse_cmd
 eval $depparse_cmd
